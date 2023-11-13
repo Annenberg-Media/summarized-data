@@ -12,7 +12,7 @@ The primary considerations for optimizing the JSON structure are:
 
 ## Structure
 
-The optimized JSON structure employs a key-value mapping, where each unique key corresponds to a list of summary points.
+The optimized JSON structure employs a key-value mapping, where each unique key corresponds to a list of summary points, attribution type (0,1,2...) and attribution details (with a dateTime and sourceList)
 
 
 ### Before Optimization
@@ -37,15 +37,30 @@ Initially, the structure included nested objects and verbose keys:
 To streamline the format, we've made the following changes:
 
 - Flattened the structure to remove nested objects.
-- Introduced a "summary" field that directly holds an array of summary points.
 - Utilized date-based keys for organization and easy retrieval.
+- Introduced a "attr" field which indicates type of summary (0:AI generated, 1: Human generated, 2: AI+Human generated)
+- Introduced a "attrDetails" field with a "dateTime" value (pick current ISO datetime from https://greenwichmeantime.com/articles/clocks/iso/), and a "sourceList" array / list of sources of summarization (eg: GPT-4, Bard, Graham Stecklein etc.) in order of attribution importance
+- Introduced a "summary" field that directly holds an array / list of summary points.
   
 Here is the new structure:
 
 ```json
 {
     "YYYY/MM/DD/unique-article-slug": {
-        "summary": ["Detail 1", "Detail 2", "Detail 3"]
+        "attr":0,
+        "attrDetails":{
+            "dateTime":"2023-11-13T20:32:14Z",
+            "sourceList":[
+                "source 1",
+                "source 2",
+                "source 3"
+            ]
+        },
+        "summary": [
+            "Summary Bullet Point 1", 
+            "Summary Bullet Point 2", 
+            "Summary Bullet Point 3"
+        ]
     }
 }
 ```
@@ -57,6 +72,13 @@ With the optimized structure, a sample JSON entry looks like this:
 ```json
 {
     "2023/11/08/the-coliseum-one-of-the-most-electric-and-historic-stadiums-ive-got-the-chance-to-shine-in": {
+        "attr":0,
+        "attrDetails":{
+            "dateTime":"2023-11-13T20:32:14Z",
+            "sourceList":[
+                "GPT-4"
+            ]
+        },
         "summary": [
             "Former USC football players celebrate the Coliseum's 100th anniversary, reminiscing about its electric atmosphere and a notable victory against Notre Dame in 2016.", 
             "The players share personal milestones, like scoring first touchdowns and a season's final home game, praising the unwavering fan support.", 
